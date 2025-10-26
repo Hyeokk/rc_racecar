@@ -1,3 +1,4 @@
 [submodule "robot_localization"]
 	path = robot_localization
 	url = https://github.com/cra-ros-pkg/robot_localization.git
+	branch = noetic-devel
