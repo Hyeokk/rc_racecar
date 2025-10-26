@@ -2,3 +2,6 @@
 	path = robot_localization
 	url = https://github.com/cra-ros-pkg/robot_localization.git
 	branch = noetic-devel
+[submodule "rplidar_ros"]
+	path = rplidar_ros
+	url = https://github.com/Slamtec/rplidar_ros.git
