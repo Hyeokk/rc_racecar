@@ -1,0 +1,18 @@
+parent:
+    frame_id : "velodyne"
+    hz: 10
+
+    camera_state: -1
+    track_state: 4
+    density_state: 5 
+    density_flag: -1 # camera flag
+    static_state: 3
+    dynamic_state: 2
+
+    Task1_state: 24
+    Task2_state: 25
+    Task3_state: 26
+    Task4_state: 27
+
+ 
+   

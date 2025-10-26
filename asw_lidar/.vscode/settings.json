@@ -1,0 +1,20 @@
+{
+    "files.associations": {
+        "ostream": "cpp",
+        "*.tcc": "cpp",
+        "deque": "cpp",
+        "vector": "cpp",
+        "random": "cpp",
+        "cmath": "cpp",
+        "complex": "cpp",
+        "array": "cpp",
+        "string_view": "cpp",
+        "iostream": "cpp",
+        "tuple": "cpp",
+        "utility": "cpp",
+        "variant": "cpp",
+        "string": "cpp",
+        "bitset": "cpp",
+        "initializer_list": "cpp"
+    }
+}

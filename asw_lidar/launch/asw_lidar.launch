@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+  <rosparam command="load" file="$(find asw_lidar)/config/task.yaml" />
+  <rosparam command="load" file="$(find asw_lidar)/config/state.yaml"/>
+  <node name="asw_lidar_node" pkg="asw_lidar" type="asw_lidar_node" output="screen">
+  </node>
+  <node type="rviz" name="rviz_" pkg="rviz" args="-d $(find asw_lidar)/rviz/asw_lidar.rviz"/>
+</launch>
+
+

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<launch>
+  <rosparam command="load" file="$(find Mando_lidar)/config/parent.yaml" />
+  <rosparam command="load" file="$(find Mando_lidar)/config/mission.yaml"/>
+  <node name="Mando_lidar_node" pkg="Mando_lidar" type="Mando_lidar_node" output="screen">
+  </node>
+  <node type="rviz" name="rviz_" pkg="rviz" args="-d $(find Mando_lidar)/rviz/Mando_lidar.rviz"/>
+</launch>
+
+

@@ -1,0 +1,17 @@
+# 보간기(스로틀/서보) 기본값 — 차량에 맞게 조정
+max_acceleration:    2.0      # m/s^2    가속 한계
+max_deceleration:    2.5      # m/s^2    감속 한계(브레이크 성능이 더 크면 늘리기)
+throttle_rate_hz:    40       # 보간 주기(속도)
+max_servo_speed:     2.5      # rad/s    조향 속도 한계
+servo_rate_hz:       60       # 보간 주기(서보)
+
+# 안전/워치독
+command_timeout:     0.2      # s   입력 명령 타임아웃(초과시 정지)
+estop_brake_current: 8.0      # A   E-Stop 시 모터 전류 브레이크(쓰면 speed=0과 함께 퍼블리시)
+use_brake_on_estop:  false    # true면 brake 토픽 사용(vesc_driver가 구독해야 함)
+
+# 단위 변환(ackermann_to_vesc와 동일 계열)
+speed_to_erpm_gain:   4614.0
+speed_to_erpm_offset: 0.0
+steering_angle_to_servo_gain:  0.60
+steering_angle_to_servo_offset: 0.50

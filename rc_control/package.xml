@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>rc_control</name>
+  <version>0.1.0</version>
+  <description>Minimal racecar control stack: RC mode/E-Stop, Ackermann MUX, and throttle/steering smoothing for VESC.</description>
+
+  <maintainer email="you@example.com">Your Name</maintainer>
+  <license>BSD-3-Clause</license>
+
+  <!-- Buildtool -->
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <!-- Runtime/Build dependencies -->
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>ackermann_msgs</depend>
+  <depend>geometry_msgs</depend>
+
+  <!-- Optional: serial bridge uses pyserial (install via pip or rosdep if available) -->
+  <!-- <exec_depend>python3-serial</exec_depend> -->
+  <!-- or: pip install pyserial -->
+
+  <export/>
+</package>

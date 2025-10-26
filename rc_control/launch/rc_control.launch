@@ -1,0 +1,102 @@
+<launch>
+  <!-- Devices/frames -->
+  <arg name="vesc_port" default="/dev/ttyACM1"/>
+  <arg name="publish_tf" default="true"/>
+  <arg name="odom_frame" default="odom"/>
+  <arg name="base_frame" default="base_link"/>
+  <arg name="wheelbase"  default="0.305"/>
+
+  <!-- Gains/offsets (calibrate per vehicle) -->
+  <arg name="speed_to_erpm_gain"             default="1500.0"/>   <!-- 느리면 gain 증가, 빠르면 감소 -->
+  <arg name="speed_to_erpm_offset"           default="0.0"/>
+  <arg name="steering_angle_to_servo_gain"   default="0.8"/>
+  <arg name="steering_angle_to_servo_offset" default="0.5"/>
+  <!-- Required only when using ackermann_to_vesc -->
+  <arg name="accel_to_current_gain" default="10.0"/>
+  <arg name="accel_to_brake_gain"   default="-8.0"/>
+
+  <!-- VESC safety limits -->
+  <arg name="servo_min" default="0.00"/>
+  <arg name="servo_max" default="1.0"/>
+  <arg name="speed_min" default="-3100"/>
+  <arg name="speed_max" default="3100"/>
+
+  <!-- Config files -->
+  <arg name="config" default="$(find rc_control)/config/vesc_smoothing.yaml"/>
+
+  <!-- Toggle path:
+       - true  : use ackermann_to_vesc (recommended default)
+       - false : let throttle_interpolator publish VESC commands directly -->
+  <arg name="use_ackermann_to_vesc" default="true"/>
+
+  <!-- GLOBAL params required by ackermann_to_vesc and vesc_to_odom -->
+  <param name="speed_to_erpm_gain"             value="$(arg speed_to_erpm_gain)"/>
+  <param name="speed_to_erpm_offset"           value="$(arg speed_to_erpm_offset)"/>
+  <param name="steering_angle_to_servo_gain"   value="$(arg steering_angle_to_servo_gain)"/>
+  <param name="steering_angle_to_servo_offset" value="$(arg steering_angle_to_servo_offset)"/>
+  <param name="accel_to_current_gain"          value="$(arg accel_to_current_gain)"/>
+  <param name="accel_to_brake_gain"            value="$(arg accel_to_brake_gain)"/>
+  <param name="wheelbase"                      value="$(arg wheelbase)"/>
+
+  <!-- Ackermann command multiplexer -->
+  <node pkg="rc_control" type="ackermann_cmd_mux.py" name="ackermann_mux" output="screen">
+    <rosparam file="$(arg config)" command="load"/>
+    <param name="command_timeout" value="0.2"/>
+    <param name="input_timeout"   value="0.2"/>
+    <param name="steer_max_deg"   value="35.0"/>
+    <param name="speed_cms_to_mps" value="0.01"/>
+    <remap from="manual"   to="/cmd_ackermann/manual"/>
+    <remap from="auto"     to="/cmd_ackermann/auto"/>
+    <remap from="selected" to="/cmd_ackermann/selected"/>
+  </node>
+
+  <!-- Interpolator: publish ONLY Ackermann by default -->
+  <node pkg="rc_control" type="throttle_interpolator.py" name="throttle_interpolator" output="screen">
+    <rosparam file="$(arg config)" command="load"/>
+    <param name="speed_to_erpm_gain"             value="$(arg speed_to_erpm_gain)"/>
+    <param name="speed_to_erpm_offset"           value="$(arg speed_to_erpm_offset)"/>
+    <param name="steering_angle_to_servo_gain"   value="$(arg steering_angle_to_servo_gain)"/>
+    <param name="steering_angle_to_servo_offset" value="$(arg steering_angle_to_servo_offset)"/>
+
+    <!-- If false, do NOT publish /vesc/commands/* (avoid conflict with ackermann_to_vesc) -->
+    <param name="direct_vesc" value="$(eval not arg('use_ackermann_to_vesc'))"/>
+
+    <remap from="cmd_in"  to="/cmd_ackermann/selected"/>
+    <remap from="cmd_out" to="/vesc/ackermann_cmd"/>
+  </node>
+
+  <!-- VESC driver -->
+  <node pkg="vesc_driver" type="vesc_driver_node" name="vesc_driver" output="screen">
+    <param name="port" value="$(arg vesc_port)"/>
+    <param name="servo_min" value="$(arg servo_min)"/>
+    <param name="servo_max" value="$(arg servo_max)"/>
+    <param name="speed_min" value="$(arg speed_min)"/>
+    <param name="speed_max" value="$(arg speed_max)"/>
+  </node>
+
+  <!-- Ackermann -> VESC (enabled only when use_ackermann_to_vesc=true) -->
+  <group if="$(arg use_ackermann_to_vesc)">
+    <node pkg="vesc_ackermann" type="ackermann_to_vesc_node" name="ackermann_to_vesc" output="screen">
+      <!-- Required params are loaded from GLOBAL namespace -->
+      <remap from="ackermann_cmd" to="/vesc/ackermann_cmd"/>
+    </node>
+  </group>
+
+  <!-- Odometry -->
+  <node pkg="vesc_ackermann" type="vesc_to_odom_node" name="vesc_to_odom" output="screen">
+    <param name="publish_tf" value="$(arg publish_tf)"/>
+    <param name="odom_frame" value="$(arg odom_frame)"/>
+    <param name="base_frame" value="$(arg base_frame)"/>
+    <param name="wheelbase"  value="$(arg wheelbase)"/> <!-- private param (redundant), global also set above -->
+    <param name="use_servo_cmd_to_calc_angular_velocity" value="true"/>
+
+    <!-- 외부 IMU yaw 사용: 사용자 IMU 토픽이 /imu 임 -->
+    <param name="use_external_yaw" value="false"/>
+    <param name="imu_topic" value="/imu"/>
+
+    <!-- 리셋 동작 제어 -->
+    <param name="reset_requires_stop" value="true"/>
+    <param name="reset_speed_thresh" value="0.05"/>
+    <param name="zero_external_yaw_on_reset" value="true"/>
+  </node>
+</launch>
